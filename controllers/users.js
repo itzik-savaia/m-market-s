@@ -3,7 +3,7 @@ var jwt = require('jsonwebtoken');
 var SECRET = require('./services/secret.model');
 
 
-exports.POST_UserTOKEN_ID = (req, res, next) => {
+exports.GET_UserTOKEN_ID = (req, res, next) => {
     jwt.verify(req.token, SECRET.secret, SECRET.role, (err, authdata) => {
         if (err) {
             res.status(403).json({ err: err.name });
@@ -25,10 +25,53 @@ exports.POST_UserTOKEN_ID = (req, res, next) => {
         }
     })
 };
-exports.PUT_User = (req, res, next) => {
-    console.log("PUT_User");
+exports.POST_ChackUser = (req, res, next) => {
+    const chack = req.body;
+    try {
+        if (chack !== "") {
+            if (chack.username) {
+                UsersSchema.findOne({ UserName: chack.username }, (err, data) => {
+                    if (err) console.log("ERROR =>", err.message);
+                    console.log("data => ", data);
+                    if (data !== null) {
+                        if (chack.username === "admin")
+                            return res.status(401).json({ msg: 'Forget about it' });
 
-};
+                        return res.status(401).json({ msg: `${chack.username} Already in the system` });
+                    } else {
+                        return res.status(200).json({ msg: 'ok' });
+                    }
+                })
+            }
+            if (chack.email) {
+                UsersSchema.findOne({ Email: chack.email }, (err, data) => {
+                    if (err) console.log("ERROR =>", err.message);
+                    console.log("data => ", data);
+                    if (data !== null) {
+                        return res.status(401).json({ msg: `${chack.email} Already in the system` });
+                    } else {
+                        return res.status(200).json({ msg: 'ok' });
+                    }
+                })
+            }
+            if (chack.id) {
+                UsersSchema.findOne({ ID_Card: chack.id }, (err, data) => {
+                    if (err) console.log("ERROR =>", err.message);
+                    console.log("data => ", data);
+                    if (data !== null) {
+                        return res.status(401).json({ msg: `${chack.id} Already in the system` });
+                    } else {
+                        return res.status(200).json({ msg: 'ok' });
+                    }
+                })
+            }
+        } else {
+            return res.status(200).json({ msg: 'ok' });
+        }
+    } catch (error) {
+        return res.status(401).json({ msg: 'somting is worng' });
+    }
+}
 exports.POST_New_User = (req, res, next) => {
     console.log("POST_New_User =>", req.body.Send_2);
     const value = req.body.Send_2;

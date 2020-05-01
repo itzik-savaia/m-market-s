@@ -70,12 +70,14 @@ exports.POST_Product = (req, res, next) => {
 exports.PUT_Product = (req, res, next) => {
     try {
         const id = req.params.id;
-        const Name = req.body.Name
-        const Price = req.body.Price
-        const CategoryId = req.body.CategoryId
+        const Name = req.body.Name;
+        const Price = req.body.Price;
+        const CategoryId = req.body.CategoryId;
+        const CategoryName = req.body.CategoryName;
+        const Sub_category_Name = req.body.Sub_category_Name;
         var file = req.files.image;
         const fileName = file.name;
-        const filePath = `/uploads/${file.name}`;
+        const filePath = `/uploads/images/${Sub_category_Name}/${CategoryName}/${file.name}`;
         const body = req.body;
         for (let i = 0; i < body.length; i++) {
             if (body[i] === undefined) return res.status(401).json({ msg: "somting is missing" });
@@ -89,20 +91,20 @@ exports.PUT_Product = (req, res, next) => {
                     console.log(`successfully deleted ${data.ImageName}`);
                 });
             })
-            // file.mv(`${__dirname}/../uploads/${file.name}`, err => {
-            //     if (err) return res.status(400).json({ Error: "Error ->", err })
-            //     else {
-            //         ProductSchema.findOneAndUpdate(
-            // /*ware to update*/{ _id: id }, //if id is not the name on data base so the id is _id if else is = "";
-            // /*waht to update*/{ Name, Price, CategoryId, ImageName: fileName, ImagePath: filePath })
-            //             .populate('ProductID')
-            //             .exec((err, data) => {
-            //                 if (err) throw err
-            //                 console.log("data", data);
-            //                 res.status(200).json({ msg: "File uploaded" })
-            //             });
-            //     }
-            // })
+            file.mv(`${__dirname}/../uploads/images/${Sub_category_Name}/${CategoryName}/${file.name}`, err => {
+                if (err) return res.status(400).json({ Error: "Error ->", err })
+                else {
+                    ProductSchema.findOneAndUpdate(
+            /*ware to update*/{ _id: id },
+            /*waht to update*/{ Name, Price, CategoryId, ImageName: fileName, ImagePath: filePath })
+                        .populate('ProductID')
+                        .exec((err, data) => {
+                            if (err) throw err
+                            console.log("data", data);
+                            res.status(200).json({ msg: "File uploaded" })
+                        });
+                }
+            })
         } catch (error) { res.status(401).send(error); }
     } catch (error) {
         res.status(401).send(error);
